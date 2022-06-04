@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import classes from './Header.module.css'
+import Search from './Search';
 
 export default function Header() {
     return (
@@ -9,6 +10,7 @@ export default function Header() {
                     <a>Shooting Events</a>
                 </Link>
             </div>
+            <Search />
             <nav>
                 <ul>
                     <li>
