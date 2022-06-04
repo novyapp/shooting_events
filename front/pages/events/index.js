@@ -6,8 +6,8 @@ export default function EvantsPage({events}) {
   return (
     <Layout>
       <h1>Competitions</h1>
-      {events.lenght === 0 && <h3>No events found</h3>}
-      {events.map(evt => (
+      {events.data.length === 0 && <h3>No events found</h3>}
+      {events.data.map(evt => (
         <EventItem key={evt.id} evt={evt}/>
       ))}
     </Layout>
@@ -15,7 +15,7 @@ export default function EvantsPage({events}) {
 }
 
 export async function getServerSideProps() {
-  const res = await fetch(`${API_URL}/api/events`);
+  const res = await fetch(`${API_URL}/api/events?populate=%2A`);
   const events = await res.json();
 
 

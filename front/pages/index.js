@@ -4,15 +4,17 @@ import Link from "next/link";
 import { API_URL } from "@config/index";
 
 export default function Home({ events }) {
+  console.log(events)
   return (
     <Layout>
+      
       <h1>Upcoming Competitions</h1>
-      {events.lenght === 0 && <h3>No events found</h3>}
-      {events.map((evt) => (
+      {events.data.length === 0 && <h3>No events found</h3>}
+      {events.data.map((evt) => (
         <EventItem key={evt.id} evt={evt} />
       ))}
 
-      {events.length > 0 && (
+      {events.data.length > 0 && (
         <Link href='/events'>
           <a className="btn-secondary">View all</a>
         </Link>
@@ -22,11 +24,14 @@ export default function Home({ events }) {
 }
 
 export async function getServerSideProps() {
-  const res = await fetch(`${API_URL}/api/events`);
+
+
+  const res = await fetch(`${API_URL}/api/events?pagination[pageSize]=2&populate=%2A`);
   const events = await res.json();
+  
 
   return {
-    props: { events:events.slice(0, 3), 
-      revalidate: 1,},
+    props: { events, 
+      revalidate: 1},
     }
 }
