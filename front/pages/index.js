@@ -2,6 +2,7 @@ import Layout from "@components/Layout";
 import EventItem from "@components/EventItem";
 import Link from "next/link";
 import { API_URL } from "@config/index";
+import { qs } from "qs"
 
 export default function Home({ events }) {
   console.log(events)
@@ -24,7 +25,11 @@ export default function Home({ events }) {
 }
 
 export async function getServerSideProps() {
-
+    const query = qs.stringify({
+      sort: ['title:asc', 'slug:desc'],
+    }, {
+      encodeValuesOnly: true,
+    });
 
   const res = await fetch(`${API_URL}/api/events?pagination[pageSize]=2&populate=%2A`);
   const events = await res.json();
