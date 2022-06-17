@@ -3,12 +3,29 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaPencilAlt, FaTimes } from "react-icons/fa";
 import { API_URL } from "@config/index";
+import { useRouter } from "next/router";
 import classes from "@styles/Event.module.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EventPage({ evt }) {
-  console.log(evt);
-  const deleteEvent = (e) => {
-    console.log("delete");
+  console.log(evt)
+  const router = useRouter();
+
+  const deleteEvent = async (e) => {
+    if (confirm('Are you sure?')) {
+      const res = await fetch(`${API_URL}/api/events/${evt.data[0].id}`, {
+        method: 'DELETE'
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        toast.error(data.message)
+      } else {
+        router.push('/events/')
+      }
+    }
   };
 
   return (
@@ -29,11 +46,15 @@ export default function EventPage({ evt }) {
         {new Date(evt.data[0].attributes.date).toLocaleDateString('pl-PL')} at {evt.data[0].attributes.time}
         </span>
         <h1>{evt.data[0].attributes.title}</h1>
-        {evt.data[0].attributes.cover && (
-            <div className={classes.image}>
-                <Image src={evt.data[0].attributes.cover.data.attributes.url} width={960} height={600} />
-            </div>
-
+        <ToastContainer />
+        {evt.data[0].attributes && (
+          <div className={classes.image}>
+            <Image
+              src={evt.data[0].attributes.cover.data.attributes.url}
+              width={960}
+              height={600}
+            />
+          </div>
         )}
         <h3>Sponsors:</h3>
         <p>{evt.data[0].attributes.performers}</p>

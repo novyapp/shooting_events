@@ -67,7 +67,7 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::event.event",
-      "mappedBy": "user"
+      "mappedBy": "users_permissions_user"
     }
   }
 }

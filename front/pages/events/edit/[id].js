@@ -1,84 +1,86 @@
-import Layout from "@components/Layout";
+import moment from "moment";
+import { FaImage } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Image from "next/image";
+import Layout from "@components/Layout";
+import Modal from "@components/Modal";
+import ImageUpload from "@components/ImageUpload";
 import { API_URL } from "@config/index";
-import classes from "@styles/form.module.css";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import classes from "@styles/Form.module.css";
 
-
-export default function AddEvent() {
+export default function EditEventPage({ evt }) {
+  console.log(evt);
   const [values, setValues] = useState({
-      title: "",
-      host: "",
-      address: "",
-      date: "",
-      time: "",
-      description: "",
-      price: "",
-      entry: "",
+    title: evt.data.attributes.title,
+    host: evt.data.attributes.host,
+    address: evt.data.attributes.address,
+    date: evt.data.attributes.date,
+    time: evt.data.attributes.time,
+    description: evt.data.attributes.description,
+    price: evt.data.attributes.price,
+    entry: evt.data.attributes.entry,
   });
+  const [imagePreview, setImagePreview] = useState(
+    evt.data.attributes.cover
+      ? evt.data.attributes.cover.data.attributes.url
+      : null
+  );
+  
+  console.log(imagePreview)
+  const [showModal, setShowModal] = useState(false);
+
   const router = useRouter();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //Validation
+    
 
-    const hasEmptyFields = Object.values(values).some(
-      (element) => element === ""
-    );
-
-    if (hasEmptyFields) {
-      toast.error("Please fill up everything");
-    }
-
-    const res = await fetch(`${API_URL}/api/events`, {
-      method: "POST",
+    const res = await fetch(`${API_URL}/api/events/${evt.data.id}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        data: {
-            'title': values.title,
-            'host': values.host,
-            'address': values.address,
-            'date': values.date,
-            'time': values.time,
-            'description': values.description,
-            'price': values.price,
-            'entry': values.entry
-
-          },
+        data: values,
       }),
     });
     console.log(values);
 
     if (!res.ok) {
-      toast.error("Something went wrong");
+      if (res.status === 403 || res.status === 401) {
+        toast.error("Unauthorized");
+        return;
+      }
+      toast.error("Something Went Wrong");
     } else {
       const evt = await res.json();
-       router.push(`/events/`)
+      router.push(`/events/`);
     }
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setValues({ ...values, [name]: value });
   };
+
+  const imageUploaded = async (e) => {
+    const res = await fetch(`${API_URL}/api/events/${evt.data.id}?populate=%2A`)
+    const data = await res.json()
+    console.log(data)
+    setImagePreview(evt.data.attributes.cover.data.attributes.url)
+    setShowModal(false)
+    setShowModal(false);
+  };
+
   return (
     <Layout title="Add New Event">
       <Link href="/events">Go Back</Link>
-      <h1>Add New Event</h1>
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <h1>Edit Event</h1>
+      <ToastContainer />
       <form onSubmit={handleSubmit} className={classes.form}>
         <div>
           <label htmlFor="title">Event Title</label>
@@ -117,7 +119,7 @@ export default function AddEvent() {
               type="date"
               id="date"
               name="date"
-              value={values.date}
+              value={moment(values.date).format("yyyy-MM-DD")}
               onChange={handleInputChange}
             />
           </div>
@@ -163,8 +165,41 @@ export default function AddEvent() {
             onChange={handleInputChange}
           ></textarea>
         </div>
-        <input type="submit" value="Add Event" className="btn" />
+        <input type="submit" value="Edit Event" className="btn" />
       </form>
+
+      <h2>Event Image</h2>
+      {imagePreview ? (
+        <Image src={imagePreview} height={100} width={170} />
+      ) : (
+        <div>
+          <p>No image uploaded</p>
+        </div>
+      )}
+
+      <div>
+        <button
+          onClick={() => setShowModal(true)}
+          className="btn-secondary btn-icon"
+        >
+          <FaImage /> Set Image
+        </button>
+      </div>
+
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <ImageUpload evtId={evt.data.id} imageUploaded={imageUploaded} />
+      </Modal>
     </Layout>
   );
+}
+
+export async function getServerSideProps({ params: { id }, req }) {
+  const res = await fetch(`${API_URL}/api/events/${id}?populate=%2A&`);
+  const evt = await res.json();
+
+  return {
+    props: {
+      evt,
+    },
+  };
 }

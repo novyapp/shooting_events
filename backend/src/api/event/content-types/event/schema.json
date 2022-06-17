@@ -4,7 +4,7 @@
   "info": {
     "singularName": "event",
     "pluralName": "events",
-    "displayName": "events",
+    "displayName": "Event",
     "description": ""
   },
   "options": {
@@ -13,13 +13,22 @@
   "pluginOptions": {},
   "attributes": {
     "title": {
-      "type": "string",
-      "required": true,
-      "maxLength": 200,
-      "unique": true
+      "type": "string"
+    },
+    "cover": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
     },
     "slug": {
-      "type": "uid"
+      "type": "uid",
+      "targetField": "title"
     },
     "host": {
       "type": "string"
@@ -28,33 +37,25 @@
       "type": "string"
     },
     "date": {
-      "type": "datetime"
+      "type": "date"
     },
     "time": {
       "type": "string"
     },
-    "description": {
-      "type": "richtext"
-    },
     "price": {
-      "type": "decimal"
-    },
-    "cover": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": [
-        "images"
-      ]
+      "type": "string"
     },
     "entry": {
       "type": "string"
     },
-    "user": {
+    "users_permissions_user": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "events"
+    },
+    "description": {
+      "type": "richtext"
     }
   }
 }

@@ -3,6 +3,7 @@ import EventItem from "@components/EventItem";
 import { API_URL } from "@config/index";
 
 export default function EvantsPage({events}) {
+  
   return (
     <Layout>
       <h1>Competitions</h1>
@@ -17,6 +18,8 @@ export default function EvantsPage({events}) {
 export async function getServerSideProps() {
   const res = await fetch(`${API_URL}/api/events?populate=%2A`);
   const events = await res.json();
+
+  
 
 
   return {
