@@ -2,8 +2,6 @@ import Layout from "@components/Layout";
 import EventItem from "@components/EventItem";
 import { API_URL } from "@config/index";
 import Link from "next/link";
-import qs from "qs"
-
 
 export default function EvantsPage({events, page}) {
   const total = events.meta.pagination.total -1
